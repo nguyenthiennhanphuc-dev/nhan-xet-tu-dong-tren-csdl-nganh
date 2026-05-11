@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tạo Mã Bản Quyền - Auto Comment</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f2f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+        h2 {
+            color: #1a73e8;
+            margin-top: 0;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            text-transform: uppercase;
+        }
+        input:focus {
+            outline: none;
+            border-color: #1a73e8;
+        }
+        button {
+            background: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #1557b0;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: #e8f0fe;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1a73e8;
+            letter-spacing: 2px;
+            margin: 10px 0;
+        }
+        .copy-btn {
+            background: #34a853;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background: #2b8c45;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🔑 Trình Tạo Mã Kích Hoạt</h2>
+    <p style="color: #666; font-size: 14px; margin-bottom: 25px;">Công cụ nội bộ dành cho Tác giả</p>
+
+    <div class="form-group">
+        <label>Nhập Mã máy của khách hàng:</label>
+        <input type="text" id="machine-id" placeholder="VD: AB12CD" maxlength="6">
+    </div>
+
+    <button onclick="generate()">Tạo Mã Bản Quyền</button>
+
+    <div class="result-box" id="result-box">
+        <div style="font-size: 14px; color: #555;">Mã kích hoạt cho khách:</div>
+        <div class="result-code" id="result-code">----</div>
+        <button class="copy-btn" onclick="copyCode()" id="copy-btn">📋 Copy Gửi Cho Khách</button>
+    </div>
+</div>
+
+<script>
+    // Thuật toán sinh mã dựa vào Mã máy và Chuỗi bí mật
+    function calculateActivationCode(machineId) {
+        machineId = machineId.trim().toUpperCase();
+        if (!machineId) return "";
+        
+        let hash = 0;
+        // Chuỗi bí mật (Tuyệt đối không đưa file này cho khách)
+        const secretString = machineId + "THIEN2026_SECRET_KEY_AUTO_COMMENT";
+        
+        for (let i = 0; i < secretString.length; i++) {
+            let char = secretString.charCodeAt(i);
+            hash = ((hash << 5) - hash) + char;
+            hash = hash & hash; 
+        }
+        
+        let code = Math.abs(hash).toString(36).toUpperCase();
+        while(code.length < 8) code = "0" + code;
+        
+        // Trả về định dạng XXXX-XXXX
+        return code.substring(0, 4) + "-" + code.substring(4, 8);
+    }
+
+    function generate() {
+        const machineId = document.getElementById('machine-id').value;
+        if(machineId.length < 4) {
+            alert('Vui lòng nhập đúng mã máy của khách!');
+            return;
+        }
+        const code = calculateActivationCode(machineId);
+        document.getElementById('result-code').innerText = code;
+        document.getElementById('result-box').style.display = 'block';
+        document.getElementById('copy-btn').innerText = '📋 Copy Gửi Cho Khách';
+    }
+
+    function copyCode() {
+        const code = document.getElementById('result-code').innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = '✅ Đã Copy!';
+            setTimeout(() => {
+                btn.innerText = '📋 Copy Gửi Cho Khách';
+            }, 2000);
+        });
+    }
+</script>
+
+</body>
+</html>
